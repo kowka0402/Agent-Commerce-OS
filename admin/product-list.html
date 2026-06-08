@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>상품 관리 | Agent-Commerce OS</title>
+
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/common.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+
+<body>
+  <div id="header"></div>
+
+  <main class="admin-main">
+    <section class="admin-hero">
+      <div class="container">
+        <span class="admin-eyebrow">Product Management</span>
+        <h1>상품 관리</h1>
+        <p>
+          등록된 상품을 검색, 필터링하고 공개 상태를 관리하는 관리자 페이지입니다.
+          현재는 Mock DB 기반이며 추후 FastAPI 상품 관리 API와 연결합니다.
+        </p>
+      </div>
+    </section>
+
+    <section class="admin-list-section">
+      <div class="container">
+        <div class="admin-card">
+          <div class="admin-card-header between">
+            <div>
+              <h2>등록 상품 목록</h2>
+              <p>상품명, 카테고리, 판매가, 공개 상태를 한 번에 관리합니다.</p>
+            </div>
+
+            <a href="./product-register.html" class="admin-create-btn">
+              AI 상품 등록
+            </a>
+          </div>
+
+          <div class="admin-toolbar">
+            <div class="admin-search-box">
+              <input
+                type="text"
+                id="adminProductSearchInput"
+                placeholder="상품명, 설명, 태그 검색"
+              />
+              <button type="button" id="adminProductSearchBtn">
+                검색
+              </button>
+            </div>
+
+            <select id="adminCategoryFilter">
+              <option value="all">전체 카테고리</option>
+              <option value="small_appliance">소형가전</option>
+              <option value="fresh_food">신선식품</option>
+            </select>
+
+            <select id="adminStatusFilter">
+              <option value="all">전체 상태</option>
+              <option value="public">공개</option>
+              <option value="hidden">비공개</option>
+            </select>
+          </div>
+
+          <div class="admin-summary-row">
+            <div>
+              <span>전체 상품</span>
+              <strong id="totalProductCount">0</strong>
+            </div>
+            <div>
+              <span>공개 상품</span>
+              <strong id="publicProductCount">0</strong>
+            </div>
+            <div>
+              <span>비공개 상품</span>
+              <strong id="hiddenProductCount">0</strong>
+            </div>
+            <div>
+              <span>AI 등록 상품</span>
+              <strong id="aiProductCount">0</strong>
+            </div>
+          </div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-product-table">
+              <thead>
+                <tr>
+                  <th>상품</th>
+                  <th>카테고리</th>
+                  <th>판매가</th>
+                  <th>상태</th>
+                  <th>등록 방식</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+
+              <tbody id="adminProductTableBody">
+                <!-- admin-product-list.js에서 렌더링 -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="admin-empty-state" id="adminEmptyState">
+            <strong>검색 결과가 없습니다.</strong>
+            <p>검색어 또는 필터 조건을 변경해보세요.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="chatbotWidgetArea"></div>
+  <div id="footer"></div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="../assets/js/mock-products.js"></script>
+  <script src="../assets/js/chatbot-widget.js"></script>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/admin-product-list.js"></script>
+</body>
+</html>

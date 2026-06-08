@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>AI 상품 등록 | Agent-Commerce OS</title>
+
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/common.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+
+<body>
+  <div id="header"></div>
+
+  <main class="admin-main">
+    <section class="admin-hero">
+      <div class="container">
+        <span class="admin-eyebrow">Multi-Agent Product Registration</span>
+        <h1>AI 상품 등록 에이전트</h1>
+        <p>
+          MD가 상품 이미지와 간단한 메모만 입력하면,
+          여러 AI 에이전트가 시장분석·가격추론·카피라이팅·SEO 태그 생성을 자동 수행합니다.
+        </p>
+      </div>
+    </section>
+
+    <section class="admin-register-section">
+      <div class="container admin-register-grid">
+        <!-- LEFT: MD Input -->
+        <form class="admin-card input-card" id="productRegisterForm">
+          <div class="admin-card-header">
+            <h2>MD 입력 정보</h2>
+            <p>현재는 Mock 실행이며, 추후 FastAPI Agent API와 연결합니다.</p>
+          </div>
+
+          <div class="form-group">
+            <label for="productImageInput">상품 이미지</label>
+
+            <div class="image-upload-box" id="imagePreviewBox">
+              <input
+                type="file"
+                id="productImageInput"
+                accept="image/*"
+              />
+              <div class="image-upload-placeholder">
+                <strong>이미지 업로드</strong>
+                <span>jpg, png 파일을 선택하세요.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="categoryInput">카테고리</label>
+            <select id="categoryInput" required>
+              <option value="">카테고리 선택</option>
+              <option value="small_appliance">소형가전</option>
+              <option value="fresh_food">신선식품</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="supplyPriceInput">공급가</label>
+            <input
+              type="number"
+              id="supplyPriceInput"
+              placeholder="예: 12000"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="mdMemoInput">MD 메모</label>
+            <textarea
+              id="mdMemoInput"
+              rows="7"
+              placeholder="예: 제주산 하우스 감귤 3kg, 당도 높음, 산지직송, 공급가 12000원"
+              required
+            ></textarea>
+          </div>
+
+          <button type="submit" class="agent-run-btn">
+            AI 에이전트 실행
+          </button>
+        </form>
+
+        <!-- RIGHT: Agent Results -->
+        <div class="admin-card result-card">
+          <div class="admin-card-header">
+            <h2>AI Agent 실행 결과</h2>
+            <p>각 에이전트의 산출물이 순차적으로 표시됩니다.</p>
+          </div>
+
+          <div class="agent-flow">
+            <div class="agent-step" data-agent="market">
+              <div class="agent-step-head">
+                <strong>Market Analyst</strong>
+                <span class="agent-status">대기</span>
+              </div>
+              <p id="marketResult">시장·경쟁 상품 분석 결과가 표시됩니다.</p>
+            </div>
+
+            <div class="agent-step" data-agent="pricing">
+              <div class="agent-step-head">
+                <strong>Pricing Agent</strong>
+                <span class="agent-status">대기</span>
+              </div>
+              <p id="pricingResult">공급가와 목표 마진 기반 판매가가 표시됩니다.</p>
+            </div>
+
+            <div class="agent-step" data-agent="copy">
+              <div class="agent-step-head">
+                <strong>Copywriter Agent</strong>
+                <span class="agent-status">대기</span>
+              </div>
+              <p id="copyResult">상품명과 판매 카피가 표시됩니다.</p>
+            </div>
+
+            <div class="agent-step" data-agent="seo">
+              <div class="agent-step-head">
+                <strong>SEO Agent</strong>
+                <span class="agent-status">대기</span>
+              </div>
+              <p id="seoResult">검색 키워드와 태그가 표시됩니다.</p>
+            </div>
+
+            <div class="agent-step" data-agent="qa">
+              <div class="agent-step-head">
+                <strong>QA Reviewer</strong>
+                <span class="agent-status">대기</span>
+              </div>
+              <p id="qaResult">오탈자, 과장 표현, 등록 가능 여부 검수 결과가 표시됩니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final Preview -->
+    <section class="admin-preview-section">
+      <div class="container">
+        <div class="admin-card preview-card">
+          <div class="admin-card-header between">
+            <div>
+              <h2>최종 상품 등록 미리보기</h2>
+              <p>AI 에이전트 결과를 기반으로 실제 DB 등록 전 확인하는 영역입니다.</p>
+            </div>
+
+            <button type="button" class="publish-btn" id="publishProductBtn" disabled>
+              상품 등록
+            </button>
+          </div>
+
+          <div class="preview-grid">
+            <div class="preview-image" id="finalPreviewImage">
+              Preview
+            </div>
+
+            <div class="preview-info">
+              <span class="preview-badge" id="finalCategory">카테고리</span>
+
+              <h3 id="finalProductName">
+                AI가 생성한 상품명이 표시됩니다.
+              </h3>
+
+              <strong id="finalPrice">0원</strong>
+
+              <p id="finalDescription">
+                AI가 생성한 상품 설명이 표시됩니다.
+              </p>
+
+              <div class="tag-list" id="finalTags">
+                <span>#AI태그</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="api-note">
+            <strong>API 연결 예정</strong>
+            <code>POST /api/agents/product-create</code>
+            <code>POST /api/products</code>
+            <code>POST /api/products/{id}/embedding</code>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="chatbotWidgetArea"></div>
+  <div id="footer"></div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="../assets/js/chatbot-widget.js"></script>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/admin-product-register.js"></script>
+</body>
+</html>

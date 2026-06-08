@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>관리자 대시보드 | Agent-Commerce OS</title>
+
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/common.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+
+<body>
+  <div id="header"></div>
+
+  <main class="admin-main">
+    <section class="admin-hero">
+      <div class="container">
+        <span class="admin-eyebrow">Admin Dashboard</span>
+        <h1>관리자 대시보드</h1>
+        <p>
+          상품, 주문, 매출, AI 에이전트 실행 현황을 한 화면에서 확인하는 관리자 메인 화면입니다.
+          현재는 Mock 데이터 기반이며 추후 FastAPI Admin API와 연결합니다.
+        </p>
+      </div>
+    </section>
+
+    <section class="dashboard-section">
+      <div class="container">
+        <!-- KPI Cards -->
+        <div class="dashboard-kpi-grid">
+          <div class="dashboard-kpi-card">
+            <span>총 상품 수</span>
+            <strong id="kpiTotalProducts">0</strong>
+            <p>현재 등록된 전체 상품</p>
+          </div>
+
+          <div class="dashboard-kpi-card">
+            <span>오늘 주문 수</span>
+            <strong id="kpiTodayOrders">0</strong>
+            <p>오늘 발생한 Mock 주문</p>
+          </div>
+
+          <div class="dashboard-kpi-card">
+            <span>예상 매출</span>
+            <strong id="kpiRevenue">0원</strong>
+            <p>오늘 주문 기준 예상 매출</p>
+          </div>
+
+          <div class="dashboard-kpi-card">
+            <span>AI 실행 횟수</span>
+            <strong id="kpiAgentRuns">0</strong>
+            <p>상품 등록 에이전트 실행 로그</p>
+          </div>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-main-grid">
+          <!-- Recent Orders -->
+          <div class="admin-card dashboard-panel">
+            <div class="admin-card-header between">
+              <div>
+                <h2>최근 주문</h2>
+                <p>결제/주문 API 연동 전 Mock 주문 데이터입니다.</p>
+              </div>
+              <span class="dashboard-panel-badge">Order API 예정</span>
+            </div>
+
+            <div class="dashboard-order-list" id="recentOrderList">
+              <!-- JS Render -->
+            </div>
+          </div>
+
+          <!-- Category Status -->
+          <div class="admin-card dashboard-panel">
+            <div class="admin-card-header">
+              <h2>카테고리 현황</h2>
+              <p>소형가전 / 신선식품 상품 구성 비율입니다.</p>
+            </div>
+
+            <div class="category-status-list" id="categoryStatusList">
+              <!-- JS Render -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Lower Grid -->
+        <div class="dashboard-lower-grid">
+          <!-- Agent Logs -->
+          <div class="admin-card dashboard-panel">
+            <div class="admin-card-header between">
+              <div>
+                <h2>AI Agent 실행 로그</h2>
+                <p>멀티 에이전트 상품 등록 파이프라인의 실행 이력입니다.</p>
+              </div>
+              <a href="./product-register.html" class="admin-create-btn">
+                AI 등록 실행
+              </a>
+            </div>
+
+            <div class="agent-log-list" id="agentLogList">
+              <!-- JS Render -->
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="admin-card dashboard-panel">
+            <div class="admin-card-header">
+              <h2>빠른 이동</h2>
+              <p>관리자 주요 기능으로 이동합니다.</p>
+            </div>
+
+            <div class="quick-action-grid">
+              <a href="./product-register.html" class="quick-action-card">
+                <strong>AI 상품 등록</strong>
+                <span>사진 + 메모 기반 상품 생성</span>
+              </a>
+
+              <a href="./product-list.html" class="quick-action-card">
+                <strong>상품 관리</strong>
+                <span>상품 검색, 공개 상태 변경</span>
+              </a>
+
+              <a href="../index.html" class="quick-action-card">
+                <strong>쇼핑몰 메인</strong>
+                <span>고객 화면 확인</span>
+              </a>
+
+              <a href="../category.html" class="quick-action-card">
+                <strong>검색 결과 페이지</strong>
+                <span>카테고리/검색 결과 확인</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Architecture Notes -->
+        <div class="admin-card dashboard-architecture-card">
+          <div class="admin-card-header">
+            <h2>연동 예정 API 구조</h2>
+            <p>개강 후 FastAPI, DB, LLM Agent Layer와 연결할 백엔드 엔드포인트입니다.</p>
+          </div>
+
+          <div class="architecture-code-grid">
+            <code>GET /api/admin/dashboard</code>
+            <code>GET /api/admin/orders/recent</code>
+            <code>GET /api/admin/products/stats</code>
+            <code>GET /api/agents/logs</code>
+            <code>POST /api/agents/product-create</code>
+            <code>POST /api/products/{id}/embedding</code>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="chatbotWidgetArea"></div>
+  <div id="footer"></div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="../assets/js/mock-products.js"></script>
+  <script src="../assets/js/chatbot-widget.js"></script>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/admin-dashboard.js"></script>
+</body>
+</html>

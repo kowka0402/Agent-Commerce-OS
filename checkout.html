@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>주문/결제 | Agent-Commerce OS</title>
+
+  <link rel="stylesheet" href="./assets/css/reset.css" />
+  <link rel="stylesheet" href="./assets/css/common.css" />
+  <link rel="stylesheet" href="./assets/css/checkout.css" />
+</head>
+
+<body>
+  <div id="header"></div>
+
+  <main>
+    <section class="checkout-hero">
+      <div class="container">
+        <span class="checkout-eyebrow">Checkout</span>
+        <h1>주문/결제</h1>
+        <p>주문 상품과 배송 정보를 확인한 뒤 결제를 진행합니다.</p>
+      </div>
+    </section>
+
+    <section class="checkout-section">
+      <div class="container checkout-layout">
+        <div class="checkout-content">
+          <!-- 주문 상품 -->
+          <section class="checkout-card">
+            <div class="checkout-card-header">
+              <h2>주문 상품</h2>
+              <p>선택한 상품 정보를 확인하세요.</p>
+            </div>
+
+            <div class="checkout-product-list" id="checkoutProductList">
+              <!-- checkout.js 렌더링 -->
+            </div>
+
+            <div class="checkout-empty" id="checkoutEmpty">
+              <strong>주문할 상품이 없습니다.</strong>
+              <p>장바구니에서 상품을 선택해주세요.</p>
+              <a href="./cart.html" class="btn-primary">장바구니로 이동</a>
+            </div>
+          </section>
+
+          <!-- 주문자 정보 -->
+          <section class="checkout-card">
+            <div class="checkout-card-header">
+              <h2>주문자 정보</h2>
+              <p>결제 및 주문 확인에 사용할 정보입니다.</p>
+            </div>
+
+            <div class="checkout-form-grid">
+              <div class="checkout-form-group">
+                <label for="buyerName">주문자명</label>
+                <input type="text" id="buyerName" placeholder="홍길동" />
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="buyerPhone">연락처</label>
+                <input type="text" id="buyerPhone" placeholder="010-0000-0000" />
+              </div>
+
+              <div class="checkout-form-group full">
+                <label for="buyerEmail">이메일</label>
+                <input type="email" id="buyerEmail" placeholder="agent-commerce@example.com" />
+              </div>
+            </div>
+          </section>
+
+          <!-- 배송지 정보 -->
+          <section class="checkout-card">
+            <div class="checkout-card-header">
+              <h2>배송지 정보</h2>
+              <p>상품을 받을 주소를 입력하세요.</p>
+            </div>
+
+            <div class="checkout-form-grid">
+              <div class="checkout-form-group">
+                <label for="receiverName">받는 사람</label>
+                <input type="text" id="receiverName" placeholder="홍길동" />
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="receiverPhone">연락처</label>
+                <input type="text" id="receiverPhone" placeholder="010-0000-0000" />
+              </div>
+
+              <div class="checkout-form-group full">
+                <label for="address">주소</label>
+                <input type="text" id="address" placeholder="서울특별시 강남구 테헤란로 000" />
+              </div>
+
+              <div class="checkout-form-group full">
+                <label for="addressDetail">상세주소</label>
+                <input type="text" id="addressDetail" placeholder="101동 1001호" />
+              </div>
+
+              <div class="checkout-form-group full">
+                <label for="deliveryMemo">배송 메모</label>
+                <select id="deliveryMemo">
+                  <option value="문 앞에 놓아주세요.">문 앞에 놓아주세요.</option>
+                  <option value="배송 전 연락주세요.">배송 전 연락주세요.</option>
+                  <option value="경비실에 맡겨주세요.">경비실에 맡겨주세요.</option>
+                  <option value="직접 입력">직접 입력</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <!-- 결제수단 -->
+          <section class="checkout-card">
+            <div class="checkout-card-header">
+              <h2>결제수단</h2>
+              <p>현재는 Mock 결제이며 추후 PortOne 테스트 결제와 연결합니다.</p>
+            </div>
+
+            <div class="payment-method-grid">
+              <label class="payment-method-card active">
+                <input type="radio" name="paymentMethod" value="kakaopay" checked />
+                <strong>카카오페이</strong>
+                <span>PortOne 테스트 연동 예정</span>
+              </label>
+
+              <label class="payment-method-card">
+                <input type="radio" name="paymentMethod" value="card" />
+                <strong>신용카드</strong>
+                <span>일반 카드 결제 Mock</span>
+              </label>
+
+              <label class="payment-method-card">
+                <input type="radio" name="paymentMethod" value="tosspay" />
+                <strong>토스페이</strong>
+                <span>간편결제 Mock</span>
+              </label>
+            </div>
+
+            <div class="payment-api-note">
+              <strong>PortOne 연동 예정</strong>
+              <code>POST /api/payments/portone/prepare</code>
+              <code>POST /api/payments/portone/verify</code>
+            </div>
+          </section>
+        </div>
+
+        <!-- 결제 요약 -->
+        <aside class="checkout-summary-card">
+          <h2>주문 요약</h2>
+
+          <div class="summary-row">
+            <span>상품금액</span>
+            <strong id="summaryProductPrice">0원</strong>
+          </div>
+
+          <div class="summary-row">
+            <span>배송비</span>
+            <strong id="summaryShippingFee">0원</strong>
+          </div>
+
+          <div class="summary-row">
+            <span>할인금액</span>
+            <strong id="summaryDiscountPrice">0원</strong>
+          </div>
+
+          <div class="summary-total">
+            <span>최종 결제금액</span>
+            <strong id="summaryTotalPrice">0원</strong>
+          </div>
+
+          <button type="button" class="payment-btn" id="paymentBtn">
+            결제하기
+          </button>
+
+          <p class="checkout-policy">
+            결제 버튼 클릭 시 주문 정보가 Mock으로 저장되고 결제 완료 페이지로 이동합니다.
+          </p>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div id="chatbotWidgetArea"></div>
+  <div id="footer"></div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="./assets/js/mock-products.js"></script>
+  <script src="./assets/js/chatbot-widget.js"></script>
+  <script src="./assets/js/common.js"></script>
+  <script src="./assets/js/checkout.js"></script>
+</body>
+</html>
