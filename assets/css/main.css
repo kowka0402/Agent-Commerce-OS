@@ -414,3 +414,20 @@
       font-size: 15px;
     }
   }
+
+  @media (max-width: 640px) {
+    .category-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+  
+    .category-card {
+      width: 100%;
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 8px;
+    }
+  }

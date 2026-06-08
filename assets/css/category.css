@@ -343,14 +343,17 @@
     }
   
     .category-product-actions {
-      flex-direction: column;
+      flex-direction: row;
       gap: 6px;
     }
   
     .category-product-actions button {
-      height: 36px;
-      font-size: 12px;
-    }
+        flex: 1;
+        height: 34px;
+        border-radius: 999px;
+        font-size: 11px;
+        white-space: nowrap;
+      }
   }
   
   @media (max-width: 420px) {
