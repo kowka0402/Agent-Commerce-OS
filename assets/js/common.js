@@ -2,8 +2,12 @@ $(document).ready(function () {
     const isAdminPage = window.location.pathname.includes("/admin/");
     const basePath = isAdminPage ? "../" : "./";
   
-    $("#header").load(`${basePath}components/header.html`, function () {
-      initAuthHeader(basePath);
+    $("#header").load(`${basePath}components/header.html`, async function () {
+      await initAuthHeader(basePath);
+  
+      if (isAdminPage) {
+        await protectAdminPage(basePath);
+      }
     });
   
     $("#footer").load(`${basePath}components/footer.html`);
@@ -17,23 +21,46 @@ $(document).ready(function () {
     });
   });
   
-  function initAuthHeader(basePath) {
-    const isAdmin = localStorage.getItem("isAdmin") === "true";
-  
+  async function initAuthHeader(basePath) {
     fixHeaderLinks(basePath);
-    updateAdminMenu(isAdmin);
     bindMobileMenu();
     bindHeaderSearch(basePath);
     updateCartCountBadge();
   
-    $("#mockAdminLoginBtn").on("click", function () {
-      localStorage.setItem("isAdmin", "true");
-      updateAdminMenu(true);
-    });
+    const user = typeof getCurrentUser === "function" ? getCurrentUser() : null;
   
-    $("#mockAdminLogoutBtn").on("click", function () {
-      localStorage.removeItem("isAdmin");
-      updateAdminMenu(false);
+    if (!user) {
+      $(".admin-only").hide();
+      $("#loginMenuBtn").show();
+      $("#logoutMenuBtn").hide();
+      return;
+    }
+  
+    $("#loginMenuBtn").hide();
+    $("#logoutMenuBtn").show();
+  
+    let isAdmin = false;
+  
+    if (typeof checkIsAdmin === "function") {
+      isAdmin = await checkIsAdmin(user.email);
+    }
+  
+    localStorage.setItem("isAdmin", isAdmin ? "true" : "false");
+  
+    if (isAdmin) {
+      $(".admin-only").show();
+    } else {
+      $(".admin-only").hide();
+    }
+  
+    $("#logoutMenuBtn").on("click", function () {
+      if (typeof logout === "function") {
+        logout();
+        return;
+      }
+  
+      localStorage.clear();
+      window.location.href = `${basePath}index.html`;
     });
   }
   
@@ -43,16 +70,7 @@ $(document).ready(function () {
     $('.gnb a[href="./index.html#ai-shopper"]').attr("href", `${basePath}index.html#ai-shopper`);
     $('.gnb a[href="./cart.html"]').attr("href", `${basePath}cart.html`);
     $('.gnb a[href="./admin/dashboard.html"]').attr("href", `${basePath}admin/dashboard.html`);
-  }
-  
-  function updateAdminMenu(isAdmin) {
-    if (isAdmin) {
-      $(".admin-only").show();
-      $("#mockAdminLoginBtn").hide();
-    } else {
-      $(".admin-only").hide();
-      $("#mockAdminLoginBtn").show();
-    }
+    $('.gnb a[href="./login.html"]').attr("href", `${basePath}login.html`);
   }
   
   function bindMobileMenu() {
@@ -80,6 +98,26 @@ $(document).ready(function () {
     });
   }
   
+  async function protectAdminPage(basePath) {
+    const user = typeof getCurrentUser === "function" ? getCurrentUser() : null;
+  
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      window.location.href = `${basePath}login.html`;
+      return false;
+    }
+  
+    const isAdmin = await checkIsAdmin(user.email);
+  
+    if (!isAdmin) {
+      alert("관리자 권한이 없습니다.");
+      window.location.href = `${basePath}index.html`;
+      return false;
+    }
+  
+    return true;
+  }
+  
   function addProductToCart(product, quantity = 1, optionName = "기본 옵션") {
     const savedCart = localStorage.getItem("cart");
     const cartItems = savedCart ? JSON.parse(savedCart) : [];
@@ -97,6 +135,7 @@ $(document).ready(function () {
         name: product.name,
         category: product.category,
         categoryName: product.categoryName,
+        imageUrl: product.imageUrl,
         price: product.price,
         badge: product.badge,
         description: product.description,

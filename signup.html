@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>회원가입 | Agent-Commerce OS</title>
+
+  <link rel="stylesheet" href="./assets/css/reset.css" />
+  <link rel="stylesheet" href="./assets/css/common.css" />
+  <link rel="stylesheet" href="./assets/css/signup.css" />
+</head>
+
+<body>
+  <div id="header"></div>
+
+  <main class="signup-main">
+    <section class="signup-section">
+      <div class="signup-card">
+        <span class="signup-eyebrow">Create Account</span>
+
+        <h1>회원가입</h1>
+
+        <p>
+          본인인증 없이 이메일 기반으로 가입합니다. 가입 후 장바구니, 주문, 개인화 추천 기능과 연결됩니다.
+        </p>
+
+        <form id="signupForm" class="signup-form">
+          <div class="signup-form-grid">
+            <div class="signup-form-group full">
+              <label for="signupEmail">이메일</label>
+              <input
+                type="email"
+                id="signupEmail"
+                placeholder="example@email.com"
+                required
+              />
+            </div>
+
+            <div class="signup-form-group">
+              <label for="signupPassword">비밀번호</label>
+              <input
+                type="password"
+                id="signupPassword"
+                placeholder="8자 이상"
+                required
+              />
+            </div>
+
+            <div class="signup-form-group">
+              <label for="signupPasswordConfirm">비밀번호 확인</label>
+              <input
+                type="password"
+                id="signupPasswordConfirm"
+                placeholder="비밀번호 재입력"
+                required
+              />
+            </div>
+
+            <div class="signup-form-group">
+              <label for="signupName">이름</label>
+              <input
+                type="text"
+                id="signupName"
+                placeholder="홍길동"
+                required
+              />
+            </div>
+
+            <div class="signup-form-group">
+              <label for="signupPhone">휴대폰번호</label>
+              <input
+                type="text"
+                id="signupPhone"
+                placeholder="010-0000-0000"
+              />
+            </div>
+
+            <div class="signup-form-group">
+              <label for="signupBirthDate">생년월일</label>
+              <input
+                type="date"
+                id="signupBirthDate"
+              />
+            </div>
+
+            <div class="signup-form-group">
+              <label for="signupGender">성별</label>
+              <select id="signupGender">
+                <option value="">선택 안 함</option>
+                <option value="male">남성</option>
+                <option value="female">여성</option>
+                <option value="other">기타</option>
+              </select>
+            </div>
+
+            <div class="signup-form-group full">
+              <label for="signupAddress">주소</label>
+              <input
+                type="text"
+                id="signupAddress"
+                placeholder="서울특별시 강남구 테헤란로 000"
+              />
+            </div>
+
+            <div class="signup-form-group full">
+              <label for="signupAddressDetail">상세주소</label>
+              <input
+                type="text"
+                id="signupAddressDetail"
+                placeholder="101동 1001호"
+              />
+            </div>
+          </div>
+
+          <div class="signup-agreement-box">
+            <label>
+              <input type="checkbox" id="agreeTerms" />
+              <span>[필수] 이용약관에 동의합니다.</span>
+            </label>
+
+            <label>
+              <input type="checkbox" id="agreePrivacy" />
+              <span>[필수] 개인정보 수집 및 이용에 동의합니다.</span>
+            </label>
+
+            <label>
+              <input type="checkbox" id="agreeMarketing" />
+              <span>[선택] 마케팅 정보 수신에 동의합니다.</span>
+            </label>
+          </div>
+
+          <button type="submit" id="signupSubmitBtn">
+            회원가입
+          </button>
+        </form>
+
+        <div class="signup-sub-actions">
+          <span>이미 계정이 있으신가요?</span>
+          <a href="./login.html">로그인</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="chatbotWidgetArea"></div>
+  <div id="footer"></div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="./assets/js/supabase-config.js"></script>
+  <script src="./assets/js/auth-api.js"></script>
+  <script src="./assets/js/chatbot-widget.js"></script>
+  <script src="./assets/js/common.js"></script>
+  <script src="./assets/js/signup.js"></script>
+</body>
+</html>

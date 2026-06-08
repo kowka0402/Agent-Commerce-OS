@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>상품 수정 | Agent-Commerce OS</title>
+
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/common.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+
+<body>
+  <div id="header"></div>
+
+  <main class="admin-main">
+    <section class="admin-hero">
+      <div class="container">
+        <span class="admin-eyebrow">Product Edit</span>
+        <h1>상품 수정</h1>
+        <p>Supabase DB에 저장된 상품 정보를 수정합니다.</p>
+      </div>
+    </section>
+
+    <section class="admin-register-section">
+      <div class="container">
+        <form class="admin-card" id="productEditForm">
+          <div class="admin-card-header between">
+            <div>
+              <h2>상품 정보 수정</h2>
+              <p>상품명, 가격, 설명, 이미지, 공개 상태를 변경할 수 있습니다.</p>
+            </div>
+
+            <a href="./product-list.html" class="admin-create-btn">
+              목록으로
+            </a>
+          </div>
+
+          <div class="preview-grid">
+            <div>
+              <div class="image-upload-box" id="editImagePreviewBox">
+                <input type="file" id="editProductImageInput" accept="image/*" />
+                <div class="image-upload-placeholder">
+                  <strong>이미지 변경</strong>
+                  <span>jpg, png 파일 선택</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="checkout-form-grid">
+              <div class="checkout-form-group full">
+                <label for="editProductName">상품명</label>
+                <input type="text" id="editProductName" required />
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="editCategory">카테고리</label>
+                <select id="editCategory" required>
+                </select>
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="editPrice">판매가</label>
+                <input type="number" id="editPrice" required />
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="editBadge">배지</label>
+                <input type="text" id="editBadge" placeholder="예: AI 등록" />
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="editIsPublic">공개 상태</label>
+                <select id="editIsPublic">
+                  <option value="true">공개</option>
+                  <option value="false">비공개</option>
+                </select>
+              </div>
+
+              <div class="checkout-form-group full">
+                <label for="editTags">태그</label>
+                <input
+                  type="text"
+                  id="editTags"
+                  placeholder="예: 제습기, 장마철, 1인가구"
+                />
+              </div>
+
+              <div class="checkout-form-group full">
+                <label for="editDescription">상품 설명</label>
+                <textarea
+                  id="editDescription"
+                  rows="6"
+                  required
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="api-note">
+            <strong>DB Update</strong>
+            <code>PATCH /rest/v1/products?id=eq.{id}</code>
+            <code>Storage / product-images</code>
+          </div>
+
+          <button type="submit" class="agent-run-btn" id="editSubmitBtn">
+            상품 수정 저장
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="chatbotWidgetArea"></div>
+  <div id="footer"></div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="../assets/js/supabase-config.js"></script>
+  <script src="../assets/js/auth-api.js"></script>
+  <script src="../assets/js/product-api.js"></script>
+  <script src="../assets/js/category-api.js"></script>
+  <script src="../assets/js/chatbot-widget.js"></script>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/admin-product-edit.js"></script>
+</body>
+</html>

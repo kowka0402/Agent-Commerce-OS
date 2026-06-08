@@ -91,3 +91,92 @@ function normalizeProduct(product) {
   
     return `${SUPABASE_URL}/storage/v1/object/public/product-images/${filePath}`;
   }
+  async function updateProductVisibility(productId, isPublic) {
+    const token = getAccessToken();
+  
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/products?id=eq.${productId}`,
+      {
+        method: "PATCH",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Prefer: "return=representation"
+        },
+        body: JSON.stringify({
+          is_public: isPublic
+        })
+      }
+    );
+  
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`공개 상태 변경 실패: ${errorText}`);
+    }
+  
+    const data = await response.json();
+    return data[0] ? normalizeProduct(data[0]) : null;
+  }
+  
+  async function deleteProductFromDb(productId) {
+    const token = getAccessToken();
+  
+    if (!token) {
+      throw new Error("로그인 토큰이 없습니다.");
+    }
+  
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/products?id=eq.${productId}&select=id`,
+      {
+        method: "DELETE",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${token}`,
+          Prefer: "return=representation"
+        }
+      }
+    );
+  
+    const responseText = await response.text();
+  
+    if (!response.ok) {
+      throw new Error(`상품 삭제 실패: ${responseText}`);
+    }
+  
+    const data = responseText ? JSON.parse(responseText) : [];
+  
+    console.log("삭제 응답:", data);
+  
+    if (!data || data.length === 0) {
+      throw new Error("DB에서 삭제된 행이 없습니다. RLS 정책 또는 productId를 확인하세요.");
+    }
+  
+    return data[0];
+  }
+
+  async function updateProductToDb(productId, product) {
+    const token = getAccessToken();
+  
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/products?id=eq.${productId}`,
+      {
+        method: "PATCH",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Prefer: "return=representation"
+        },
+        body: JSON.stringify(product)
+      }
+    );
+  
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`상품 수정 실패: ${errorText}`);
+    }
+  
+    const data = await response.json();
+    return data[0] ? normalizeProduct(data[0]) : null;
+  }

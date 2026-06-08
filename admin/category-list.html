@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>카테고리 관리 | Agent-Commerce OS</title>
+
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/common.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+
+<body>
+  <div id="header"></div>
+
+  <main class="admin-main">
+    <section class="admin-hero">
+      <div class="container">
+        <span class="admin-eyebrow">Category Management</span>
+        <h1>카테고리 관리</h1>
+        <p>상품 등록과 진열에 사용할 카테고리를 추가, 수정, 비활성화합니다.</p>
+      </div>
+    </section>
+
+    <section class="admin-list-section">
+      <div class="container admin-list-layout">
+        <section class="admin-card">
+          <div class="admin-card-header">
+            <h2>카테고리 추가</h2>
+            <p>카테고리 코드는 영문 소문자와 언더스코어를 권장합니다.</p>
+          </div>
+
+          <form id="categoryForm" class="category-admin-form">
+            <input type="hidden" id="categoryIdInput" />
+
+            <div class="checkout-form-grid">
+              <div class="checkout-form-group">
+                <label for="categoryCodeInput">카테고리 코드</label>
+                <input
+                  type="text"
+                  id="categoryCodeInput"
+                  placeholder="예: beauty_care"
+                  required
+                />
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="categoryNameInput">카테고리명</label>
+                <input
+                  type="text"
+                  id="categoryNameInput"
+                  placeholder="예: 뷰티케어"
+                  required
+                />
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="categorySortInput">정렬 순서</label>
+                <input
+                  type="number"
+                  id="categorySortInput"
+                  value="10"
+                />
+              </div>
+
+              <div class="checkout-form-group">
+                <label for="categoryActiveInput">상태</label>
+                <select id="categoryActiveInput">
+                  <option value="true">활성</option>
+                  <option value="false">비활성</option>
+                </select>
+              </div>
+
+              <div class="checkout-form-group full">
+                <label for="categoryDescriptionInput">설명</label>
+                <textarea
+                  id="categoryDescriptionInput"
+                  rows="4"
+                  placeholder="카테고리 설명을 입력하세요."
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="category-form-actions">
+              <button type="submit" class="agent-run-btn" id="categorySubmitBtn">
+                카테고리 저장
+              </button>
+
+              <button type="button" class="admin-reset-btn" id="categoryResetBtn">
+                입력 초기화
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="admin-card">
+          <div class="admin-card-header between">
+            <div>
+              <h2>카테고리 목록</h2>
+              <p>현재 DB에 저장된 카테고리입니다.</p>
+            </div>
+
+            <a href="./product-list.html" class="admin-create-btn">
+              상품 관리
+            </a>
+          </div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>카테고리</th>
+                  <th>코드</th>
+                  <th>정렬</th>
+                  <th>상태</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+
+              <tbody id="categoryTableBody">
+                <!-- JS 렌더링 -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="admin-empty-state" id="categoryEmptyState">
+            등록된 카테고리가 없습니다.
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div id="chatbotWidgetArea"></div>
+  <div id="footer"></div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="../assets/js/supabase-config.js"></script>
+  <script src="../assets/js/auth-api.js"></script>
+  <script src="../assets/js/category-api.js"></script>
+  <script src="../assets/js/chatbot-widget.js"></script>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/admin-category-list.js"></script>
+</body>
+</html>

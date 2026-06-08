@@ -5,7 +5,9 @@ $(document).ready(async function () {
     let currentStatus = "all";
   
     try {
-      const dbProducts = await fetchProductsFromDb();
+      await protectAdminPage("../");
+  
+      const dbProducts = await fetchAdminProductsFromDb();
       adminProducts = createAdminProducts(dbProducts);
     } catch (error) {
       console.error("관리자 상품 조회 실패:", error);
@@ -16,10 +18,28 @@ $(document).ready(async function () {
     renderSummary(adminProducts);
     bindFilters();
   
-    /**
-     * Supabase products 데이터를 관리자 목록용 ViewModel로 변환
-     * 현재 anon key는 public 상품 조회만 가능
-     */
+    async function fetchAdminProductsFromDb() {
+      const token = getAccessToken();
+  
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/products?select=*&order=created_at.desc`,
+        {
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`관리자 상품 조회 실패: ${errorText}`);
+      }
+  
+      const data = await response.json();
+      return data.map(normalizeProduct);
+    }
+  
     function createAdminProducts(products) {
       return products.map(function (product, index) {
         return {
@@ -55,20 +75,19 @@ $(document).ready(async function () {
         applyFilters();
       });
   
-      $(document).on("click", ".status-toggle-btn", function () {
+      $(document).on("click", ".status-toggle-btn", async function () {
         const productId = $(this).data("product-id");
-        toggleProductStatus(productId);
+        await toggleProductStatus(productId);
       });
   
       $(document).on("click", ".admin-edit-btn", function () {
         const productId = $(this).data("product-id");
-  
-        alert(`상품 ID ${productId} 수정 페이지는 추후 구현됩니다.`);
+        window.location.href = `./product-edit.html?id=${productId}`;
       });
   
-      $(document).on("click", ".admin-delete-btn", function () {
+      $(document).on("click", ".admin-delete-btn", async function () {
         const productId = $(this).data("product-id");
-        deleteProduct(productId);
+        await deleteProduct(productId);
       });
     }
   
@@ -82,6 +101,7 @@ $(document).ready(async function () {
             ${product.description || ""}
             ${product.categoryName || ""}
             ${product.badge || ""}
+            ${(product.tags || []).join(" ")}
           `.toLowerCase();
   
           return searchTarget.includes(currentKeyword.toLowerCase());
@@ -132,7 +152,11 @@ $(document).ready(async function () {
           <td>
             <div class="admin-product-cell">
               <div class="admin-product-thumb">
-                ${product.categoryName}
+                ${
+                  product.imageUrl
+                    ? `<img src="${product.imageUrl}" alt="${product.name}" />`
+                    : product.categoryName
+                }
               </div>
   
               <div>
@@ -221,7 +245,7 @@ $(document).ready(async function () {
       $("#aiProductCount").text(aiCount);
     }
   
-    function toggleProductStatus(productId) {
+    async function toggleProductStatus(productId) {
       const product = adminProducts.find(function (item) {
         return item.id === productId;
       });
@@ -230,37 +254,46 @@ $(document).ready(async function () {
         return;
       }
   
-      product.status = product.status === "public" ? "hidden" : "public";
+      const nextIsPublic = product.status !== "public";
   
-      /**
-       * TODO: 실제 DB 반영은 FastAPI service_role key로 처리
-       * PATCH /api/admin/products/{id}/status
-       *
-       * 브라우저 anon key로 관리자 수정 API를 직접 호출하지 않는 게 안전함
-       */
+      try {
+        await updateProductVisibility(productId, nextIsPublic);
   
-      applyFilters();
-    }
+        product.status = nextIsPublic ? "public" : "hidden";
+        product.is_public = nextIsPublic;
   
-    function deleteProduct(productId) {
-      const confirmed = confirm("정말 이 상품을 삭제하시겠습니까?");
-  
-      if (!confirmed) {
-        return;
+        applyFilters();
+      } catch (error) {
+        console.error(error);
+        alert("공개 상태 변경 중 오류가 발생했습니다.");
       }
-  
-      adminProducts = adminProducts.filter(function (product) {
-        return product.id !== productId;
-      });
-  
-      /**
-       * TODO: 실제 DB 삭제는 FastAPI service_role key로 처리
-       * DELETE /api/admin/products/{id}
-       */
-  
-      applyFilters();
-      renderSummary(adminProducts);
     }
+  
+    async function deleteProduct(productId) {
+        const confirmed = confirm("정말 이 상품을 삭제하시겠습니까?");
+      
+        if (!confirmed) {
+          return;
+        }
+      
+        try {
+          console.log("삭제 요청 productId:", productId);
+      
+          const deletedProduct = await deleteProductFromDb(productId);
+      
+          console.log("DB 삭제 성공:", deletedProduct);
+      
+          adminProducts = adminProducts.filter(function (product) {
+            return product.id !== productId;
+          });
+      
+          applyFilters();
+          renderSummary(adminProducts);
+        } catch (error) {
+          console.error("DB 삭제 실패:", error);
+          alert(error.message || "상품 삭제 중 오류가 발생했습니다.");
+        }
+      }
   
     function formatDate(value) {
       if (!value) {

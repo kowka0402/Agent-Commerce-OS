@@ -42,21 +42,10 @@
 
             <div class="filter-group">
               <strong>카테고리</strong>
-
-              <label>
-                <input type="radio" name="categoryFilter" value="all" checked />
-                전체
-              </label>
-
-              <label>
-                <input type="radio" name="categoryFilter" value="small_appliance" />
-                소형가전
-              </label>
-
-              <label>
-                <input type="radio" name="categoryFilter" value="fresh_food" />
-                신선식품
-              </label>
+            
+              <div id="categoryFilterBox">
+                <!-- category.js에서 DB 카테고리 자동 렌더링 -->
+              </div>
             </div>
 
             <div class="filter-group">
@@ -140,7 +129,9 @@
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="./assets/js/supabase-config.js"></script>
+  <script src="./assets/js/auth-api.js"></script>
   <script src="./assets/js/product-api.js"></script>
+  <script src="./assets/js/category-api.js"></script>
   <script src="./assets/js/chatbot-widget.js"></script>
   <script src="./assets/js/common.js"></script>
   <script src="./assets/js/category.js"></script>
