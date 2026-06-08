@@ -1,5 +1,12 @@
-$(document).ready(function () {
-    let checkoutItems = loadCheckoutItems();
+$(document).ready(async function () {
+    let checkoutItems = [];
+  
+    try {
+      checkoutItems = await loadCheckoutItems();
+    } catch (error) {
+      console.error("주문 상품 로딩 실패:", error);
+      checkoutItems = [];
+    }
   
     renderCheckoutItems();
     renderSummary();
@@ -10,18 +17,16 @@ $(document).ready(function () {
      * localStorage.checkoutItems
      *
      * 상세/카테고리 바로구매로 넘어온 경우:
-     * checkout.html?productId=1&quantity=1
+     * checkout.html?productId={uuid}&quantity=1
      */
-    function loadCheckoutItems() {
+    async function loadCheckoutItems() {
       const params = new URLSearchParams(window.location.search);
-      const productId = Number(params.get("productId"));
+      const productId = params.get("productId");
       const quantity = Number(params.get("quantity")) || 1;
       const optionName = params.get("option") || "기본 옵션";
   
       if (productId) {
-        const product = PRODUCTS.find(function (item) {
-          return item.id === productId;
-        });
+        const product = await fetchProductByIdFromDb(productId);
   
         if (!product) {
           return [];
@@ -79,7 +84,7 @@ $(document).ready(function () {
   
           <div class="checkout-product-info">
             <strong>${item.name}</strong>
-            <p>${item.description}</p>
+            <p>${item.description || ""}</p>
             <small>옵션: ${item.optionName || "기본 옵션"} · 수량 ${item.quantity}개</small>
           </div>
   

@@ -1,19 +1,26 @@
-$(document).ready(function () {
+$(document).ready(async function () {
     let currentCategory = "all";
+    let products = [];
   
-    renderProducts(PRODUCTS);
+    try {
+      products = await fetchProductsFromDb();
+      renderProducts(products);
+    } catch (error) {
+      console.error("상품 목록 로딩 실패:", error);
+      renderProducts([]);
+    }
+  
     bindCategoryEvents();
     bindBannerEvent();
     bindOpenChatbotButton();
     bindProductCardEvents();
   
     /**
-     * TODO: FastAPI 연동 예정
-     * GET /api/products
-     * response: Product[]
+     * Supabase DB 상품 목록
+     * GET /rest/v1/products
      */
     function fetchProducts() {
-      return PRODUCTS;
+      return products;
     }
   
     function renderProducts(products) {
@@ -22,6 +29,15 @@ $(document).ready(function () {
   
       $productGrid.empty();
       $productCount.text(`${products.length}개 상품`);
+  
+      if (products.length === 0) {
+        $productGrid.append(`
+          <div class="empty-product-message">
+            상품 데이터를 불러오지 못했습니다.
+          </div>
+        `);
+        return;
+      }
   
       products.forEach(function (product) {
         const productCard = createProductCard(product);
@@ -42,11 +58,11 @@ $(document).ready(function () {
           </div>
   
           <div class="product-info">
-            <span class="product-badge">${product.badge}</span>
+            <span class="product-badge">${product.badge || "추천"}</span>
   
             <h3>${product.name}</h3>
   
-            <p>${product.description}</p>
+            <p>${product.description || ""}</p>
   
             <strong class="product-price">${formattedPrice}원</strong>
   
@@ -109,17 +125,16 @@ $(document).ready(function () {
       $(document).on("click", ".btn-cart", function (event) {
         event.stopPropagation();
   
-        const productId = Number($(this).data("product-id"));
+        const productId = $(this).data("product-id");
   
-        const product = PRODUCTS.find(function (item) {
+        const product = products.find(function (item) {
           return item.id === productId;
         });
   
-        /**
-         * TODO: 장바구니 API 연동 예정
-         * POST /api/cart
-         * request: { productId: number, quantity: number }
-         */
+        if (!product) {
+          alert("상품 정보를 찾을 수 없습니다.");
+          return;
+        }
   
         addProductToCart(product, 1);
         openCartConfirmModal(product.name);

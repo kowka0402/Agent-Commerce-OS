@@ -44,6 +44,7 @@ $(document).ready(function () {
         }
   
         resetAgentSteps();
+  
         runMockAgents({
           category,
           supplyPrice,
@@ -67,16 +68,6 @@ $(document).ready(function () {
       $("#publishProductBtn").prop("disabled", true);
     }
   
-    /**
-     * TODO: FastAPI + LangGraph/CrewAI 연동 예정
-     * POST /api/agents/product-create
-     * request: {
-     *   image: File,
-     *   category: string,
-     *   supplyPrice: number,
-     *   mdMemo: string
-     * }
-     */
     function runMockAgents(input) {
       const context = createMockProductContext(input);
   
@@ -98,7 +89,9 @@ $(document).ready(function () {
   
       runAgentStep("qa", 2900, function () {
         $("#qaResult").text("상품명, 가격, 태그, 카피 검수 완료. 과장 표현 없이 등록 가능한 상태입니다.");
+  
         generatedProduct = context;
+  
         renderFinalPreview(context);
         $("#publishProductBtn").prop("disabled", false);
       });
@@ -127,12 +120,18 @@ $(document).ready(function () {
   
       const marginRate = input.category === "small_appliance" ? 1.55 : 1.45;
       const recommendedPrice = roundToPrice(input.supplyPrice * marginRate);
+      const productName = extractProductName(
+        input.mdMemo,
+        input.category === "small_appliance"
+          ? "AI 추천 실속형 소형가전"
+          : "AI 추천 산지직송 신선식품"
+      );
   
       if (input.category === "small_appliance") {
         return {
           category: input.category,
           categoryName,
-          productName: extractProductName(input.mdMemo, "AI 추천 실속형 소형가전"),
+          productName,
           supplyPrice: input.supplyPrice,
           recommendedPrice,
           marketAnalysis:
@@ -150,7 +149,7 @@ $(document).ready(function () {
       return {
         category: input.category,
         categoryName,
-        productName: extractProductName(input.mdMemo, "AI 추천 산지직송 신선식품"),
+        productName,
         supplyPrice: input.supplyPrice,
         recommendedPrice,
         marketAnalysis:
@@ -171,11 +170,7 @@ $(document).ready(function () {
         .replace(/[0-9,]+원/g, "")
         .trim();
   
-      if (firstLine.length >= 3) {
-        return firstLine;
-      }
-  
-      return fallbackName;
+      return firstLine.length >= 3 ? firstLine : fallbackName;
     }
   
     function roundToPrice(price) {
@@ -197,29 +192,47 @@ $(document).ready(function () {
     }
   
     function bindPublishButton() {
-      $("#publishProductBtn").on("click", function () {
+      $("#publishProductBtn").on("click", async function () {
         if (!generatedProduct) {
           alert("먼저 AI 에이전트를 실행해주세요.");
           return;
         }
   
-        /**
-         * TODO: 상품 등록 API 연동 예정
-         * POST /api/products
-         * request: {
-         *   name: string,
-         *   category: string,
-         *   price: number,
-         *   description: string,
-         *   tags: string[],
-         *   imageUrl: string
-         * }
-         *
-         * TODO: 임베딩 생성 API 연동 예정
-         * POST /api/products/{id}/embedding
-         */
+        const productPayload = {
+          name: generatedProduct.productName,
+          category: generatedProduct.category,
+          category_name: generatedProduct.categoryName,
+          price: generatedProduct.recommendedPrice,
+          badge: "AI 등록",
+          description: generatedProduct.description,
+          spec_json: {
+            supply_price: generatedProduct.supplyPrice,
+            seo_tags: generatedProduct.seoTags,
+            copywriting: generatedProduct.copywriting
+          },
+          image_url: null,
+          is_public: true,
+          created_by: "AI Agent"
+        };
   
-        alert("Mock 상품 등록이 완료되었습니다. 추후 DB 저장 API와 연결됩니다.");
+        try {
+          $("#publishProductBtn")
+            .prop("disabled", true)
+            .text("등록 중...");
+  
+          const insertedProduct = await insertProductToDb(productPayload);
+  
+          alert("상품이 DB에 등록되었습니다.");
+  
+          window.location.href = `../product-detail.html?id=${insertedProduct.id}`;
+        } catch (error) {
+          console.error(error);
+          alert("상품 등록 중 오류가 발생했습니다. Console을 확인해주세요.");
+  
+          $("#publishProductBtn")
+            .prop("disabled", false)
+            .text("상품 등록");
+        }
       });
     }
   });

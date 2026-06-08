@@ -1,19 +1,21 @@
-$(document).ready(function () {
+$(document).ready(async function () {
     let currentCategory = "all";
     let currentPrice = "all";
     let currentSort = "recommended";
     let currentKeyword = "";
+    let products = [];
+  
+    try {
+      products = await fetchProductsFromDb();
+    } catch (error) {
+      console.error("상품 조회 실패:", error);
+      products = [];
+    }
   
     initFromUrl();
     bindCategoryPageEvents();
     applyFilters();
   
-    /**
-     * URL 지원:
-     * category.html?type=small_appliance
-     * category.html?type=fresh_food
-     * category.html?keyword=제습기
-     */
     function initFromUrl() {
       const params = new URLSearchParams(window.location.search);
       const type = params.get("type");
@@ -72,15 +74,16 @@ $(document).ready(function () {
       $(document).on("click", ".category-cart-btn", function (event) {
         event.stopPropagation();
   
-        const productId = Number($(this).data("product-id"));
-        const product = PRODUCTS.find(function (item) {
+        const productId = $(this).data("product-id");
+  
+        const product = products.find(function (item) {
           return item.id === productId;
         });
   
-        /**
-         * TODO: 장바구니 API 연동 예정
-         * POST /api/cart
-         */
+        if (!product) {
+          alert("상품 정보를 찾을 수 없습니다.");
+          return;
+        }
   
         addProductToCart(product, 1);
         openCartConfirmModal(product.name);
@@ -89,26 +92,21 @@ $(document).ready(function () {
       $(document).on("click", ".category-buy-btn", function (event) {
         event.stopPropagation();
   
-        const productId = Number($(this).data("product-id"));
-  
-        /**
-         * TODO: 주문서 API 연동 예정
-         */
-  
+        const productId = $(this).data("product-id");
         window.location.href = `./checkout.html?productId=${productId}&quantity=1`;
       });
     }
   
     function applyFilters() {
-      let filteredProducts = [...PRODUCTS];
+      let filteredProducts = [...products];
   
       if (currentKeyword) {
         filteredProducts = filteredProducts.filter(function (product) {
           const searchTarget = `
-            ${product.name}
-            ${product.description}
-            ${product.categoryName}
-            ${product.badge}
+            ${product.name || ""}
+            ${product.description || ""}
+            ${product.categoryName || ""}
+            ${product.badge || ""}
           `.toLowerCase();
   
           return searchTarget.includes(currentKeyword.toLowerCase());
@@ -205,12 +203,12 @@ $(document).ready(function () {
   
           <div class="category-product-info">
             <span class="category-product-badge">
-              ${product.badge}
+              ${product.badge || "추천"}
             </span>
   
             <h3>${product.name}</h3>
   
-            <p>${product.description}</p>
+            <p>${product.description || ""}</p>
   
             <strong class="category-product-price">
               ${formattedPrice}원
@@ -282,6 +280,19 @@ $(document).ready(function () {
   
       if (currentKeyword) {
         $("#resultKeywordText").text(`검색어: ${currentKeyword}`);
+        return;
       }
+  
+      if (currentCategory === "small_appliance") {
+        $("#resultKeywordText").text("소형가전 카테고리 상품을 표시합니다.");
+        return;
+      }
+  
+      if (currentCategory === "fresh_food") {
+        $("#resultKeywordText").text("신선식품 카테고리 상품을 표시합니다.");
+        return;
+      }
+  
+      $("#resultKeywordText").text("전체 상품을 표시합니다.");
     }
   });

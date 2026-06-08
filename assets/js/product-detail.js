@@ -1,6 +1,13 @@
-$(document).ready(function () {
+$(document).ready(async function () {
     const productId = getProductIdFromUrl();
-    const product = findProductById(productId);
+  
+    let product = null;
+  
+    try {
+      product = await fetchProductByIdFromDb(productId);
+    } catch (error) {
+      console.error("상품 상세 조회 실패:", error);
+    }
   
     if (!product) {
       renderNotFound();
@@ -16,18 +23,7 @@ $(document).ready(function () {
   
     function getProductIdFromUrl() {
       const params = new URLSearchParams(window.location.search);
-      return Number(params.get("id"));
-    }
-  
-    /**
-     * TODO: FastAPI 연동 예정
-     * GET /api/products/{id}
-     * response: ProductDetail
-     */
-    function findProductById(id) {
-      return PRODUCTS.find(function (item) {
-        return item.id === id;
-      });
+      return params.get("id");
     }
   
     function renderProductDetail(product) {
@@ -163,13 +159,9 @@ $(document).ready(function () {
         }
   
         const quantity = getQuantity("#quantityInput");
+        const optionName = $("#productOption option:selected").text();
   
-        /**
-         * TODO: 장바구니 API 연동 예정
-         * POST /api/cart
-         */
-  
-        addProductToCart(product, 1);
+        addProductToCart(product, quantity, optionName);
         openCartConfirmModal(product.name);
       });
   
@@ -180,12 +172,6 @@ $(document).ready(function () {
   
         const quantity = getQuantity("#quantityInput");
         const option = $("#productOption").val();
-  
-        /**
-         * TODO: 주문/결제 API 연동 예정
-         * POST /api/orders
-         * POST /api/payments/portone/prepare
-         */
   
         window.location.href =
           `./checkout.html?productId=${product.id}&option=${option}&quantity=${quantity}`;
@@ -256,13 +242,9 @@ $(document).ready(function () {
         }
   
         const quantity = getQuantity("#mobileQuantityInput");
+        const optionName = $("#mobileProductOption option:selected").text();
   
-        /**
-         * TODO: 모바일 장바구니 API 연동 예정
-         * POST /api/cart
-         */
-  
-        addProductToCart(product, quantity, $("#mobileProductOption option:selected").text());
+        addProductToCart(product, quantity, optionName);
         openCartConfirmModal(product.name);
         closeMobileSheet();
       });
@@ -274,10 +256,6 @@ $(document).ready(function () {
   
         const quantity = getQuantity("#mobileQuantityInput");
         const option = $("#mobileProductOption").val();
-  
-        /**
-         * TODO: 모바일 주문/결제 API 연동 예정
-         */
   
         window.location.href =
           `./checkout.html?productId=${product.id}&option=${option}&quantity=${quantity}`;
@@ -355,14 +333,23 @@ $(document).ready(function () {
     }
   
     function createMockSpecs(product) {
+      const specJson = product.spec_json || product.specJson || {};
+  
+      if (Object.keys(specJson).length > 0) {
+        return {
+          ...specJson,
+          "AI 검색 키워드": `${product.name}, ${product.categoryName}, ${product.badge || ""}`
+        };
+      }
+  
       if (product.category === "small_appliance") {
         return {
           "상품 유형": product.categoryName,
           "권장 사용자": "1인 가구 / 원룸 / 소형 공간",
-          "주요 특징": product.badge,
+          "주요 특징": product.badge || "추천",
           "소비전력": product.name.includes("제습기") ? "180W" : "상품별 상이",
           "배송 형태": "택배 배송",
-          "AI 검색 키워드": `${product.name}, ${product.categoryName}, ${product.badge}`
+          "AI 검색 키워드": `${product.name}, ${product.categoryName}, ${product.badge || ""}`
         };
       }
   
@@ -370,16 +357,16 @@ $(document).ready(function () {
         return {
           "상품 유형": product.categoryName,
           "보관 방식": "냉장 보관 권장",
-          "주요 특징": product.badge,
+          "주요 특징": product.badge || "추천",
           "출고 방식": "산지 또는 물류센터 직송",
           "소비 기한": "상품별 상이",
-          "AI 검색 키워드": `${product.name}, ${product.categoryName}, ${product.badge}`
+          "AI 검색 키워드": `${product.name}, ${product.categoryName}, ${product.badge || ""}`
         };
       }
   
       return {
         "상품 유형": product.categoryName,
-        "주요 특징": product.badge
+        "주요 특징": product.badge || "추천"
       };
     }
   
@@ -410,7 +397,7 @@ $(document).ready(function () {
           <div class="container">
             <div class="not-found-box">
               <h1>상품을 찾을 수 없습니다.</h1>
-              <p>잘못된 상품 ID이거나 Mock 데이터에 없는 상품입니다.</p>
+              <p>잘못된 상품 ID이거나 DB에 없는 상품입니다.</p>
               <a href="./index.html" class="btn-primary">메인으로 돌아가기</a>
             </div>
           </div>

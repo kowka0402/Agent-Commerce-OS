@@ -1,26 +1,33 @@
-$(document).ready(function () {
-    let adminProducts = createAdminProducts(PRODUCTS);
+$(document).ready(async function () {
+    let adminProducts = [];
     let currentKeyword = "";
     let currentCategory = "all";
     let currentStatus = "all";
+  
+    try {
+      const dbProducts = await fetchProductsFromDb();
+      adminProducts = createAdminProducts(dbProducts);
+    } catch (error) {
+      console.error("관리자 상품 조회 실패:", error);
+      adminProducts = [];
+    }
   
     renderAdminProducts(adminProducts);
     renderSummary(adminProducts);
     bindFilters();
   
     /**
-     * TODO: FastAPI 연동 예정
-     * GET /api/admin/products
-     * response: AdminProduct[]
+     * Supabase products 데이터를 관리자 목록용 ViewModel로 변환
+     * 현재 anon key는 public 상품 조회만 가능
      */
     function createAdminProducts(products) {
       return products.map(function (product, index) {
         return {
           ...product,
-          status: index % 4 === 0 ? "hidden" : "public",
-          createdBy: index % 3 === 0 ? "AI Agent" : "MD Manual",
-          stock: 20 + index * 3,
-          createdAt: "2026-06-08"
+          status: product.is_public === false ? "hidden" : "public",
+          createdBy: product.created_by || "Seed",
+          stock: product.stock || 20 + index * 3,
+          createdAt: formatDate(product.created_at)
         };
       });
     }
@@ -49,22 +56,18 @@ $(document).ready(function () {
       });
   
       $(document).on("click", ".status-toggle-btn", function () {
-        const productId = Number($(this).data("product-id"));
+        const productId = $(this).data("product-id");
         toggleProductStatus(productId);
       });
   
       $(document).on("click", ".admin-edit-btn", function () {
-        const productId = Number($(this).data("product-id"));
+        const productId = $(this).data("product-id");
   
-        /**
-         * TODO: 상품 수정 페이지 연결 예정
-         * location.href = `./product-edit.html?id=${productId}`
-         */
         alert(`상품 ID ${productId} 수정 페이지는 추후 구현됩니다.`);
       });
   
       $(document).on("click", ".admin-delete-btn", function () {
-        const productId = Number($(this).data("product-id"));
+        const productId = $(this).data("product-id");
         deleteProduct(productId);
       });
     }
@@ -75,10 +78,10 @@ $(document).ready(function () {
       if (currentKeyword) {
         filteredProducts = filteredProducts.filter(function (product) {
           const searchTarget = `
-            ${product.name}
-            ${product.description}
-            ${product.categoryName}
-            ${product.badge}
+            ${product.name || ""}
+            ${product.description || ""}
+            ${product.categoryName || ""}
+            ${product.badge || ""}
           `.toLowerCase();
   
           return searchTarget.includes(currentKeyword.toLowerCase());
@@ -134,7 +137,7 @@ $(document).ready(function () {
   
               <div>
                 <strong>${product.name}</strong>
-                <p>${product.description}</p>
+                <p>${product.description || ""}</p>
                 <small>재고 ${product.stock}개 · 등록일 ${product.createdAt}</small>
               </div>
             </div>
@@ -199,12 +202,15 @@ $(document).ready(function () {
   
     function renderSummary(products) {
       const totalCount = products.length;
+  
       const publicCount = products.filter(function (product) {
         return product.status === "public";
       }).length;
+  
       const hiddenCount = products.filter(function (product) {
         return product.status === "hidden";
       }).length;
+  
       const aiCount = products.filter(function (product) {
         return product.createdBy === "AI Agent";
       }).length;
@@ -227,9 +233,10 @@ $(document).ready(function () {
       product.status = product.status === "public" ? "hidden" : "public";
   
       /**
-       * TODO: 상품 공개 상태 변경 API 연동 예정
+       * TODO: 실제 DB 반영은 FastAPI service_role key로 처리
        * PATCH /api/admin/products/{id}/status
-       * request: { status: "public" | "hidden" }
+       *
+       * 브라우저 anon key로 관리자 수정 API를 직접 호출하지 않는 게 안전함
        */
   
       applyFilters();
@@ -247,11 +254,25 @@ $(document).ready(function () {
       });
   
       /**
-       * TODO: 상품 삭제 API 연동 예정
+       * TODO: 실제 DB 삭제는 FastAPI service_role key로 처리
        * DELETE /api/admin/products/{id}
        */
   
       applyFilters();
       renderSummary(adminProducts);
+    }
+  
+    function formatDate(value) {
+      if (!value) {
+        return "-";
+      }
+  
+      const date = new Date(value);
+  
+      return date.toLocaleDateString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      });
     }
   });
