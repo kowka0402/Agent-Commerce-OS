@@ -430,3 +430,29 @@
   height: 100%;
   object-fit: cover;
 }
+
+.mobile-menu-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #111827;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mobile-menu-btn span {
+  width: 22px;
+  height: 2px;
+  border-radius: 999px;
+  background: #fff;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: flex;
+  }
+}
