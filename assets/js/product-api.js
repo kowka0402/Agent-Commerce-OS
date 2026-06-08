@@ -1,6 +1,14 @@
-async function fetchProductsFromDb() {
+function normalizeProduct(product) {
+    return {
+      ...product,
+      categoryName: product.category_name,
+      imageUrl: product.image_url
+    };
+  }
+  
+  async function fetchProductsFromDb() {
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/products?select=*&is_public=eq.true&order=created_at.desc`,
+      `${SUPABASE_URL}/rest/v1/products?select=*&is_public=eq.true&order=created_at.asc`,
       {
         headers: {
           apikey: SUPABASE_ANON_KEY,
@@ -13,7 +21,8 @@ async function fetchProductsFromDb() {
       throw new Error("상품 데이터를 불러오지 못했습니다.");
     }
   
-    return await response.json();
+    const data = await response.json();
+    return data.map(normalizeProduct);
   }
   
   async function fetchProductByIdFromDb(id) {
@@ -32,9 +41,9 @@ async function fetchProductsFromDb() {
     }
   
     const data = await response.json();
-    return data[0] || null;
+    return data[0] ? normalizeProduct(data[0]) : null;
   }
-
+  
   async function insertProductToDb(product) {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/products`, {
       method: "POST",
@@ -53,5 +62,32 @@ async function fetchProductsFromDb() {
     }
   
     const data = await response.json();
-    return data[0];
+    return normalizeProduct(data[0]);
+  }
+  
+  async function uploadProductImageToStorage(file) {
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+    const filePath = `products/${fileName}`;
+  
+    const response = await fetch(
+      `${SUPABASE_URL}/storage/v1/object/product-images/${filePath}`,
+      {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          "Content-Type": file.type,
+          "x-upsert": "true"
+        },
+        body: file
+      }
+    );
+  
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`이미지 업로드 실패: ${errorText}`);
+    }
+  
+    return `${SUPABASE_URL}/storage/v1/object/public/product-images/${filePath}`;
   }

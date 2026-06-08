@@ -1,6 +1,7 @@
 $(document).ready(function () {
     let uploadedImageUrl = null;
     let generatedProduct = null;
+    let uploadedImageFile = null;
   
     bindImagePreview();
     bindAgentForm();
@@ -13,7 +14,8 @@ $(document).ready(function () {
         if (!file) {
           return;
         }
-  
+
+        uploadedImageFile = file;
         uploadedImageUrl = URL.createObjectURL(file);
   
         $("#imagePreviewBox")
@@ -197,6 +199,11 @@ $(document).ready(function () {
           alert("먼저 AI 에이전트를 실행해주세요.");
           return;
         }
+        let imageUrl = null;
+
+        if (uploadedImageFile) {
+        imageUrl = await uploadProductImageToStorage(uploadedImageFile);
+        }
   
         const productPayload = {
           name: generatedProduct.productName,
@@ -210,7 +217,7 @@ $(document).ready(function () {
             seo_tags: generatedProduct.seoTags,
             copywriting: generatedProduct.copywriting
           },
-          image_url: null,
+          image_url: imageUrl,
           is_public: true,
           created_by: "AI Agent"
         };

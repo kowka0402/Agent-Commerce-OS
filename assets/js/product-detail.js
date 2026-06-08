@@ -30,7 +30,11 @@ $(document).ready(async function () {
       const marketPrice = calculateMarketPrice(product.price);
       const discountRate = calculateDiscountRate(product.price, marketPrice);
   
-      $("#productImage").text(product.categoryName);
+      if (product.imageUrl) {
+        $("#productImage").html(`<img src="${product.imageUrl}" alt="${product.name}" />`);
+      } else {
+        $("#productImage").text(product.categoryName);
+      }
       $("#productName").text(product.name);
       $("#marketPrice").text(`${marketPrice.toLocaleString("ko-KR")}원`);
       $("#discountRate").text(`${discountRate}%`);

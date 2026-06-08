@@ -198,7 +198,11 @@ $(document).ready(async function () {
           data-product-id="${product.id}"
         >
           <div class="category-product-img">
-            ${product.categoryName}
+            ${
+                product.imageUrl
+                ? `<img src="${product.imageUrl}" alt="${product.name}" />`
+                : product.categoryName
+            }
           </div>
   
           <div class="category-product-info">

@@ -53,9 +53,13 @@ $(document).ready(async function () {
           class="product-card" 
           data-product-id="${product.id}"
         >
-          <div class="product-img">
-            ${product.categoryName}
-          </div>
+        <div class="product-img">
+            ${
+            product.imageUrl
+                ? `<img src="${product.imageUrl}" alt="${product.name}" />`
+                : product.categoryName
+            }
+        </div>
   
           <div class="product-info">
             <span class="product-badge">${product.badge || "추천"}</span>
